@@ -21,4 +21,4 @@ yum -y remove firewalld
 yum -y install iptables-services
 
 #Apply puppet manifest
-#/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
+/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
