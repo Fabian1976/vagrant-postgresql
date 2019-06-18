@@ -6,11 +6,14 @@ tmp/
 puppet/.tmp
 puppet/.librarian
 puppet/Puppetfile.lock
-puppet/modules/concat
 puppet/modules/firewall
 puppet/modules/lvm
-puppet/modules/postgresql
 puppet/modules/selinux
 puppet/modules/stdlib
 puppet/modules/systemd
-rpm/*
+
+#Postgresql
+puppet/modules/postgresql
+puppet/modules/apt
+puppet/modules/concat
+
