@@ -28,7 +28,8 @@ class profile::postgresql::server (
   Boolean          $use_seperate_partition = false,
   String[1]        $partition_fs_type = 'xfs',
   Array[String]    $db_disk = [ '/dev/sdb' ],
-  String[1]        $vgname = 'vg_database',
+  String[1]        $vgname = 'vg_postgres',
+  String[1]        $lvname = 'lv_postgres',
   Optional[String] $db_partition_size = undef,
   String[1]        $postgres_password = 'postgres',
 ){
@@ -48,7 +49,7 @@ class profile::postgresql::server (
         $vgname => {
           physical_volumes => $db_disk,
           logical_volumes  => {
-            'database' => {
+            $lvname => {
               'size'              => $db_partition_size,
               'mountpath'         => $datadir,
               'mountpath_require' => true,
