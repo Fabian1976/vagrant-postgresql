@@ -1,83 +1,80 @@
-# == Class: profile::postgresql::server
+# Class to load modules needed to install a PostgreSQL server
 #
-# Install PostgreSQL server with specified config entries and HBA entries
+# @example
+#  class { '::profile::postgresql::server':
+#    instancename => 'postgres'
+#  }
 #
-# === Parameters
-#
-# $version:
-#   This parameter allows you to set a specifiec version. Defaults to 2.4.5
-#
-# === Variables
-#
-# === Authors
-#
-# Fabian van der Hoeven <fabian.vanderhoeven@vermont24-7.com>
+# @param instancename Name if the instance to create
+# @param dbversion Version of PostgreSQL release
+# @param config_entries Config entries to modify in pgdata/postgresql.conf
+# @param pg_hba_rules HBA-rules to create in pgdata/pg_hba.conf
+# @param manage_repo Should the module manage it's own repo? (or is there a Satellite)
+# @param datadir Base dir of where to create the database
+# @param use_seperate_partition Create a seperate partition or not (additional disk as a partition)
+# @param partition_fs_type Partition type of the seperate partition
+# @param db_disk List of disks to assign to the seperate partition with LVM. Is only used when use_seperate_partition = true
+# @param vgname Name of the volume group LVM will create
+# @param db_partition_size Size of the partition (example: 64G). When set to undef, the maximum size of the disks is used
+# @param postgres_password Password of the default postgres user
 #
 class profile::postgresql::server (
-  String $dbversion = '9.4',
-  $config_entries = undef,
-  $pg_hba_rules = undef,
-  Boolean $manage_db_repo = false,
-  String $datadir = '/database',
-  String $instancename = undef,
-  Boolean $use_seperate_partition = false,
-  String $partition_fs_type = 'xfs',
-  Array $db_disk = [ '/dev/sdb' ],
-  $db_partition_size = undef,
-  String $postgres_password = 'postgres',
+  String[1]        $instancename,
+  String[1]        $dbversion = '9.4',
+  Optional[Hash]   $config_entries = undef,
+  Optional[Hash]   $pg_hba_rules = undef,
+  Boolean          $manage_repo = false,
+  String[1]        $datadir = '/database',
+  Boolean          $use_seperate_partition = false,
+  String[1]        $partition_fs_type = 'xfs',
+  Array[String]    $db_disk = [ '/dev/sdb' ],
+  String[1]        $vgname = 'vg_database',
+  Optional[String] $db_partition_size = undef,
+  String[1]        $postgres_password = 'postgres',
 ){
-  assert_type(Array, $db_disk) | $expected, $actual | {
-    fail "Parameter ${title}::db_disk should be '${expected}', not '${actual}'."
-  }
-  assert_type(String, $instancename) | $expected, $actual | {
-    fail "Parameter ${title}::instancename should be '${expected}', not '${actual}'."
-  }
-
   file { $datadir:
     ensure  => directory,
     mode    => '0755',
+    seltype => 'postgresql_db_t',
   }
   file { "${datadir}/${instancename}":
     ensure  => directory,
-    mode    => '0775',
+    mode    => '0755',
+    seltype => 'postgresql_db_t',
   }
   if $use_seperate_partition {
-    class {'lvm':
+    class { '::lvm':
       volume_groups => {
-        'vg_database' => {
+        $vgname => {
           physical_volumes => $db_disk,
           logical_volumes  => {
             'database' => {
               'size'              => $db_partition_size,
               'mountpath'         => $datadir,
               'mountpath_require' => true,
-              'fs_type'           => $partition_fs_type
+              'fs_type'           => $partition_fs_type,
             },
           },
         },
       },
       require       => File[$datadir],
-      before        => File["${datadir}/${instancename}"]
+      before        => File["${datadir}/${instancename}"],
     }
   }
-  class { 'postgresql::globals':
-    manage_package_repo => $manage_db_repo,
+  class { '::postgresql::globals':
+    manage_package_repo => $manage_repo,
     version             => $dbversion,
     datadir             => "${datadir}/${instancename}/pgdata",
   }
-  ->class { 'postgresql::server':
+  ->class { '::postgresql::server':
     require           => File["${datadir}/${instancename}"],
     postgres_password => $postgres_password,
-    listen_addresses  => '*'
+    listen_addresses  => '*',
   }
-  if $config_entries != undef {
-    assert_type(Hash, $config_entries) | $expected, $actual | { fail "Parameter ${title}::config_entries should be '${expected}', not '${actual}'." }
+  if $config_entries {
     create_resources('postgresql::server::config_entry', $config_entries)
   }
-  if $pg_hba_rules != undef {
-    assert_type(Hash, $pg_hba_rules) | $expected, $actual | { fail "Parameter ${title}::pg_hba_rules should be '${expected}', not '${actual}'." }
+  if $pg_hba_rules {
     create_resources('postgresql::server::pg_hba_rule', $pg_hba_rules)
   }
-
-
 }
