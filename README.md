@@ -24,7 +24,9 @@ $ bundle install
 $ cd puppet
 $ librarian-puppet install
 $ cd ..
-$ vagrant up
+$ vagrant up pgdb01
 ```
 
 When it is finished, PostgreSQL should be accessible via port 5432
+
+In the Vagrantfile there is also a placeholder for a second server (pgdb02) which doesn't do anything yet. It is in preparation for streaming replication.
