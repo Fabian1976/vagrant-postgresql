@@ -4,7 +4,7 @@ Vagrant box to test my PostgreSQL puppet code
 I use it on a Mac book
 
 ## Installation
-Make sure Vagrant is installed (duh) with the hostmanager plugin (`vagrant plugin install vagrant-hostmanager`).
+Make sure Vagrant is installed (duh) with the hostmanager plugin (`vagrant plugin install vagrant-hostmanager`) and Virtualbox.
 
 Make sure these packages are installed:
 ```
