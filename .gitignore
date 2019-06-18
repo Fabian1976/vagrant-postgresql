@@ -1,0 +1,16 @@
+.DS_Store
+*.swp
+Gemfile.lock
+tmp/
+.vagrant/
+puppet/.tmp
+puppet/.librarian
+puppet/Puppetfile.lock
+puppet/modules/concat
+puppet/modules/firewall
+puppet/modules/lvm
+puppet/modules/postgresql
+puppet/modules/selinux
+puppet/modules/stdlib
+puppet/modules/systemd
+rpm/*
