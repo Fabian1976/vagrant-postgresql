@@ -20,3 +20,13 @@ puppet/modules/translate
 
 #CORE
 puppet/modules/core
+
+#Puppetserver
+puppet/modules/puppetserver_gem
+puppet/modules/puppetserver
+puppet/modules/augeasproviders_core
+puppet/modules/augeas
+
+#puppetdb
+puppet/modules/puppetdb
+puppet/modules/inifile

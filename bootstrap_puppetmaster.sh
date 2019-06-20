@@ -174,3 +174,14 @@ EOF'
 /usr/bin/install -d -o puppet -g puppet -m 770 --context=system_u:object_r:default_t:s0 /puppettmp
 echo -e "\nJAVA_ARGS=\"\${JAVA_ARGS} -Djava.io.tmpdir=/puppettmp\"" >> /etc/sysconfig/puppetserver
 puppet resource service puppetserver ensure=running enable=true
+
+#Let puppetserver manage it self
+sudo bash -c 'cat << EOF >> /etc/puppetlabs/puppet/puppet.conf
+
+[agent]
+report          = true
+ignoreschedules = true
+daemon          = false
+server          = puppetmaster.mdt-cmc.local
+environment     = production
+EOF'
