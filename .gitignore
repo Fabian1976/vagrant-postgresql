@@ -17,3 +17,6 @@ puppet/modules/postgresql
 puppet/modules/apt
 puppet/modules/concat
 puppet/modules/translate
+
+#CORE
+puppet/modules/core

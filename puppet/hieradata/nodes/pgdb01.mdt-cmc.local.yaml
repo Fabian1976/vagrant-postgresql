@@ -1,8 +1,8 @@
 ---
 roles:
-  - role::postgresql::server
+  - core::role::postgresql::server
 
-profile::postgresql::server::dbversion: '9.6'
-profile::postgresql::server::manage_repo: true
-profile::postgresql::server::use_seperate_partition: true
-profile::postgresql::server::instancename: 'mdt_cmc'
+core::profile::postgresql::server::dbversion: '9.6'
+core::profile::postgresql::server::manage_repo: true
+core::profile::postgresql::server::use_seperate_partition: true
+core::profile::postgresql::server::instancename: 'mdt_cmc'
