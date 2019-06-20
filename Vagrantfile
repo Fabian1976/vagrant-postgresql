@@ -10,7 +10,32 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.manage_guest = true
   config.hostmanager.ignore_private_ip = false
   config.vm.provision :hostmanager
-  config.vm.define 'pgdb01', primary: true do |pgdb01|
+  config.vm.define 'puppetmaster', primary: true do |puppetmaster|
+    puppetmaster.vm.box = 'cmc/cis-centos76'
+    puppetmaster.vm.hostname = 'puppetmaster.mdt-cmc.local'
+    puppetmaster.vm.network 'private_network', bridge: 'vboxnet5', ip: '10.10.10.32'
+
+    puppetmaster.vm.provider 'virtualbox' do |vb|
+      vb.memory = 4096
+      vb.customize ['modifyvm', :id, '--vram', '20']
+      file_to_disk = './tmp/puppetmaster.vdi'
+      unless File.exist?(file_to_disk)
+        vb.customize ['createhd', '--filename', file_to_disk, '--size', (32 * 1024)]
+      end
+      vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+      vb.gui = true
+      vb.name = 'puppetmaster'
+    end
+    #run provisioning
+    puppetmaster.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
+    puppetmaster.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
+    puppetmaster.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
+    puppetmaster.vm.provision :shell,
+      path: 'bootstrap_puppetmaster.sh',
+      upload_path: '/home/vagrant/bootstrap.sh'
+  end
+
+  config.vm.define 'pgdb01', autostart: true do |pgdb01|
     pgdb01.vm.box = 'cmc/cis-centos76'
     pgdb01.vm.hostname = 'pgdb01.mdt-cmc.local'
     pgdb01.vm.network 'private_network', bridge: 'vboxnet5', ip: '10.10.10.208'
@@ -28,14 +53,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.name = 'pgdb01'
     end
     #run provisioning
-    pgdb01.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
-    pgdb01.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
-    pgdb01.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
+#    pgdb01.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
+#    pgdb01.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
+#    pgdb01.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
     pgdb01.vm.provision :shell,
-      path: 'bootstrap.sh',
+      path: 'bootstrap_postgresql_master.sh',
       upload_path: '/home/vagrant/bootstrap.sh'
   end
-  config.vm.define 'pgdb02', autostart: true do |pgdb02|
+  config.vm.define 'pgdb02', autostart: false do |pgdb02|
     pgdb02.vm.box = 'cmc/cis-centos76'
     pgdb02.vm.hostname = 'pgdb02.mdt-cmc.local'
     pgdb02.vm.network 'private_network', bridge: 'vboxnet5', ip: '10.10.10.209'
@@ -53,11 +78,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.name = 'pgdb02'
     end
     #run provisioning
-    pgdb02.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
-    pgdb02.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
-    pgdb02.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
-    pgdb02.vm.provision :shell,
-      path: 'bootstrap.sh',
-      upload_path: '/home/vagrant/bootstrap.sh'
+#    pgdb02.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
+#    pgdb02.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
+#    pgdb02.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
+#    pgdb02.vm.provision :shell,
+#      path: 'bootstrap.sh',
+#      upload_path: '/home/vagrant/bootstrap.sh'
   end
 end
