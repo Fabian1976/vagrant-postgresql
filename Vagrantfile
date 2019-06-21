@@ -59,6 +59,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     pgdb01.vm.provision :shell,
       path: 'bootstrap_postgresql_master.sh',
       upload_path: '/home/vagrant/bootstrap.sh'
+    pgdb01.trigger.before :destroy do |trigger|
+      trigger.warn = "Don't forget to clear the certificate on the puppetmaster"
+    end
   end
   config.vm.define 'pgdb02', autostart: false do |pgdb02|
     pgdb02.vm.box = 'cmc/cis-centos76'
@@ -81,8 +84,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #    pgdb02.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
 #    pgdb02.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
 #    pgdb02.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
-#    pgdb02.vm.provision :shell,
-#      path: 'bootstrap.sh',
-#      upload_path: '/home/vagrant/bootstrap.sh'
+    pgdb02.vm.provision :shell,
+      path: 'bootstrap_postgresql_slave.sh',
+      upload_path: '/home/vagrant/bootstrap.sh'
+    pgdb02.trigger.before :destroy do |trigger|
+      trigger.warn = "Don't forget to clear the certificate on the puppetmaster"
+    end
   end
 end
