@@ -185,3 +185,5 @@ daemon          = false
 server          = puppetmaster.mdt-cmc.local
 environment     = production
 EOF'
+
+puppet agent -t
