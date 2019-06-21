@@ -8,10 +8,17 @@ postgresql_instancename: &postgresql_instancename 'mdt_cmc'
 
 core::profile::copy::files:
   'archive_location':
-    path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive"
     ensure: 'directory'
+    path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive"
     owner: 'postgres'
     group: 'postgres'
+  'pgpass':
+    ensure: file
+    path: '/var/lib/pgsql/.pgpass'
+    content: '*:*:replication:replication:replication'
+    owner: 'postgres'
+    group: 'postgres'
+    mode: '0600'
 
 core::profile::postgresql::server::dbversion:              '9.6'
 core::profile::postgresql::server::manage_repo:            true
@@ -22,7 +29,7 @@ core::profile::postgresql::server::pg_hba_rules:
   'replication':
     type: 'host'
     database: 'replication'
-    user : 'postgres'
+    user : 'replication'
     address: '10.10.10.0/24'
     auth_method: 'md5'
 
@@ -49,9 +56,10 @@ core::profile::postgresql::server::config_entries:
     value: '32'
 #  'synchronous_standby_names':
 #    value: '1 (s2)'
-#  'hot_standby':
-#    value: 'on'
+  'hot_standby':
+    value: 'on'
 postgresql::server::roles:
   'replication':
     replication: true
     password_hash: 'replication'
+    require: Class[Postgresql::Server::Service]
