@@ -12,3 +12,4 @@ mod 'cmc-core',
   :ref => 'v6.2.2'
 mod 'puppet-puppetserver', '3.0.0'
 mod 'puppetlabs-puppetdb', '6.0.2'
+mod 'puppet-hiera', '3.0.0'

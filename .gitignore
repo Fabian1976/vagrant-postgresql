@@ -30,3 +30,6 @@ puppet/modules/augeas
 #puppetdb
 puppet/modules/puppetdb
 puppet/modules/inifile
+
+#hiera
+puppet/modules/hiera
