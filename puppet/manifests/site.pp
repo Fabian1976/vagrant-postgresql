@@ -1,5 +1,6 @@
+require stdlib
 Package {allow_virtual => false}
-include stdlib
+unless $cluster {$cluster = hiera('cluster', 'undef')}
 #
 # Om de modules compatible te houden tussen RHEL5 en RHEL6, introduceren
 # we hier de $input_chain_name variable. Overal waar firewall regels toegevoegd
