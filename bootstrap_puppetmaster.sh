@@ -186,4 +186,4 @@ server          = puppetmaster.mdt-cmc.local
 environment     = production
 EOF'
 
-puppet agent -t
+puppet agent -t; true

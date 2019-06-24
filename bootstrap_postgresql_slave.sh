@@ -40,4 +40,4 @@ yum -y install iptables-services
 #local manifest
 #/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
 #manifest on puppetmaster
-puppet agent -t
+puppet agent -t; true
