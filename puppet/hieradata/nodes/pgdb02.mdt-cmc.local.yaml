@@ -1,38 +1,5 @@
 ---
-roles:
-  - core::role::postgresql::server
-  - core::profile::copy
-
-postgresql_datadir:      &postgresql_datadir      '/database'
-postgresql_instancename: &postgresql_instancename 'mdt_cmc'
-
-core::profile::copy::files:
-  'archive_location':
-    ensure: 'directory'
-    path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive"
-    owner: 'postgres'
-    group: 'postgres'
-  'pgpass':
-    ensure: file
-    path: '/var/lib/pgsql/.pgpass'
-    content: '*:*:replication:replication:replication'
-    owner: 'postgres'
-    group: 'postgres'
-    mode: '0600'
-    require: Class[Postgresql::Server::Install]
-
-core::profile::postgresql::server::dbversion:              '9.6'
-core::profile::postgresql::server::manage_repo:            true
-core::profile::postgresql::server::use_seperate_partition: true
-core::profile::postgresql::server::datadir:                *postgresql_datadir
-core::profile::postgresql::server::instancename:           *postgresql_instancename
-core::profile::postgresql::server::pg_hba_rules:
-  'replication':
-    type: 'host'
-    database: 'replication'
-    user : 'replication'
-    address: '10.10.10.0/24'
-    auth_method: 'md5'
+cluster: postgresql
 
 postgresql::server::manage_recovery_conf: true
 core::profile::postgresql::server::recovery_conf:
@@ -44,29 +11,3 @@ core::profile::postgresql::server::recovery_conf:
     restore_command: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive/%f \"%p\""
 #postgresql::server::service_ensure: 'stopped'
 #postgresql::server::service_enabled: false
-
-postgresql::server::log_line_prefix: '%t %u@%d %p '
-postgresql::server::timezone:        'Europe/Amsterdam'
-core::profile::postgresql::server::config_entries:
-  'wal_level':
-    value: 'replica'
-  'fsync':
-    value: 'on'
-  'synchronous_commit':
-    value: 'on'
-  'log_timezone':
-    value: 'Europe/Amsterdam'
-  'log_filename':
-    value: 'postgresql-%Y-%m-%d.log'
-  'archive_mode':
-    value: 'on'
-  'archive_command':
-    value: "test ! -f %{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive/%f && cp %p %{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive/%f"
-  'max_wal_senders':
-    value: '5'
-  'wal_keep_segments':
-    value: '32'
-  'synchronous_standby_names':
-    value: '1 (s2)'
-  'hot_standby':
-    value: 'on'
