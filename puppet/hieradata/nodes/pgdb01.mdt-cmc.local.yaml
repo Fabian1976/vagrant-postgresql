@@ -1,3 +1,4 @@
 ---
 cluster: postgresql
-  
+
+postgresql::server::manage_recovery_conf: false

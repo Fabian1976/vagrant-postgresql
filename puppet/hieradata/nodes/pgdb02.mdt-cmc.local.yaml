@@ -1,13 +1,15 @@
 ---
 cluster: postgresql
 
+postgresql_slave_name: &postgresql_slave_name 's2'
+
+core::profile::postgresql::server::is_slave: true
+core::profile::postgresql::server::slave_name: *postgresql_slave_name
+
 postgresql::server::manage_recovery_conf: true
 core::profile::postgresql::server::recovery_conf:
   'recovery':
     standby_mode: 'on'
-    primary_conninfo: 'user=replication password=replication host=pgdb01.mdt-cmc.local port=5432 sslmode=prefer sslcompression=1 krbsrvname=postgres'
-#    primary_conninfo: 'user=replication password=replication host=pgdb01.mdt-cmc.local port=5432 application_name=s2 sslmode=prefer sslcompression=1 krbsrvname=postgres'
+    primary_conninfo: "user=replication password=replication host=%{hiera('postgresql_masternode')} port=5432 application_name=%{hiera('postgresql_slave_name')} sslmode=prefer sslcompression=1 krbsrvname=postgres"
     trigger_file: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/trigger_file"
-    restore_command: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive/%f \"%p\""
-#postgresql::server::service_ensure: 'stopped'
-#postgresql::server::service_enabled: false
+    restore_command: "cp %{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive/%f \"%p\""

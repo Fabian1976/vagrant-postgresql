@@ -4,6 +4,7 @@ roles:
 
 postgresql_datadir:      &postgresql_datadir      '/database'
 postgresql_instancename: &postgresql_instancename 'mdt_cmc'
+postgresql_masternode:   &postgresql_masternode   'pgdb01.mdt-cmc.local'
 
 core::profile::copy::files:
   'archive_location':
@@ -26,6 +27,10 @@ core::profile::postgresql::server::manage_repo:            true
 core::profile::postgresql::server::use_seperate_partition: true
 core::profile::postgresql::server::datadir:                *postgresql_datadir
 core::profile::postgresql::server::instancename:           *postgresql_instancename
+core::profile::postgresql::server::masternode:             *postgresql_masternode
+core::profile::postgresql::server::slaves:                 1
+core::profile::postgresql::server::synchronous_slave_names:
+  - 's2'
 core::profile::postgresql::server::pg_hba_rules:
   'replication':
     type: 'host'
@@ -55,8 +60,6 @@ core::profile::postgresql::server::config_entries:
     value: '5'
   'wal_keep_segments':
     value: '32'
-#  'synchronous_standby_names':
-#    value: '1 (s2)'
   'hot_standby':
     value: 'on'
 
