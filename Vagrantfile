@@ -53,9 +53,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.name = 'pgdb01'
     end
     #run provisioning
-#    pgdb01.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
-#    pgdb01.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
-#    pgdb01.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
     pgdb01.vm.provision :shell,
       path: 'bootstrap_postgresql_master.sh',
       upload_path: '/home/vagrant/bootstrap.sh'
@@ -81,9 +78,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.name = 'pgdb02'
     end
     #run provisioning
-#    pgdb02.vm.synced_folder 'puppet/hieradata', '/etc/puppetlabs/code/environments/production/hieradata/'
-#    pgdb02.vm.synced_folder 'puppet/manifests', '/etc/puppetlabs/code/environments/production/manifests/'
-#    pgdb02.vm.synced_folder 'puppet/modules', '/etc/puppetlabs/code/environments/production/modules/'
     pgdb02.vm.provision :shell,
       path: 'bootstrap_postgresql_slave.sh',
       upload_path: '/home/vagrant/bootstrap.sh'
