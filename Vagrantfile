@@ -57,7 +57,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       path: 'bootstrap_postgresql_master.sh',
       upload_path: '/home/vagrant/bootstrap.sh'
     pgdb01.trigger.before :destroy do |trigger|
-      trigger.warn = "Don't forget to clear the certificate on the puppetmaster"
+      trigger.warn = "Don't forget to clear the certificate and deactivate the puppetdb node on the puppetmaster"
     end
   end
   config.vm.define 'pgdb02', autostart: false do |pgdb02|
@@ -82,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       path: 'bootstrap_postgresql_slave.sh',
       upload_path: '/home/vagrant/bootstrap.sh'
     pgdb02.trigger.before :destroy do |trigger|
-      trigger.warn = "Don't forget to clear the certificate on the puppetmaster"
+      trigger.warn = "Don't forget to clear the certificate and deactivate the puppetdb node on the puppetmaster"
     end
   end
 end
