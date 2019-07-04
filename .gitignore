@@ -33,3 +33,6 @@ puppet/modules/inifile
 
 #hiera
 puppet/modules/hiera
+
+#handlieding allard
+allard/
