@@ -11,5 +11,5 @@ core::profile::postgresql::server::recovery_conf:
   'recovery':
     standby_mode: 'on'
     primary_conninfo: "user=replication password=replication host=%{hiera('postgresql_masternode')} port=5432 application_name=%{hiera('postgresql_slave_name')} sslmode=prefer sslcompression=1 krbsrvname=postgres"
-    trigger_file: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/trigger_file"
+    trigger_file: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/i_am_the_master"
     restore_command: "cp %{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/archive/%f \"%p\""
