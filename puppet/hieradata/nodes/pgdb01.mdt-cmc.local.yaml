@@ -7,9 +7,19 @@ postgresql::server::roles:
     replication: true
     password_hash: 'replication'
     require: Class[Postgresql::Server::Service]
+  'pgpool':
+    superuser: true
+    replication: true
+    createdb: true
+    createrole: true
+    password_hash: 'pgpool'
+    require: Class[Postgresql::Server::Service]
   'fabian':
     password_hash: 'fabian'
     require: Class[Postgresql::Server::Service]
+#core::profile::postgresql::server::extensions:
+#  'pgpool_recovery':
+#    database: 'template1'
 
 pgpool::config::watchdog::wd_hostname: 'pgdb01.mdt-cmc.local'
 
