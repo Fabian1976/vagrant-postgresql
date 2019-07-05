@@ -1,10 +1,12 @@
 ---
 roles:
   - core::role::postgresql::server
+  - core::profile::copy
+  - fw
 
+postgresql_version:      &postgresql_version      '9.6'
 postgresql_datadir:      &postgresql_datadir      '/database'
 postgresql_instancename: &postgresql_instancename 'mdt_cmc'
-postgresql_masternode:   &postgresql_masternode   'pgdb01.mdt-cmc.local'
 
 core::profile::copy::files:
   'archive_location':
@@ -13,31 +15,122 @@ core::profile::copy::files:
     owner: 'postgres'
     group: 'postgres'
     require: Class[Postgresql::Server::Install]
-  'pgpass':
+  'postgres_pgpass':
     ensure: file
     path: '/var/lib/pgsql/.pgpass'
-    content: '*:*:replication:replication:replication'
+    content: "localhost:5432:*:replication:replication\npgdb01.mdt-cmc.local:5432:replication:replication:replication\npgdb02.mdt-cmc.local:5432:replication:replication:replication\npgdb03.mdt-cmc.local:5432:replication:replication:replication"
     owner: 'postgres'
     group: 'postgres'
     mode: '0600'
     require: Class[Postgresql::Server::Install]
+  'postgres_pcppass':
+    ensure: file
+    path: '/var/lib/pgsql/.pcppass'
+    content: '*:9898:pgpool:pgpool'
+    owner: 'postgres'
+    group: 'postgres'
+    mode: '0600'
+    require: Class[Postgresql::Server::Install]
+  'root_pgpass':
+    ensure: file
+    path: '/root/.pgpass'
+    content: "*:*:*:pgpool:pgpool\n*:*:*:postgres:postgres"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+    require: Class[Postgresql::Server::Install]
+  'root_pcppass':
+    ensure: file
+    path: '/root/.pcppass'
+    content: '*:9898:pgpool:pgpool'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+    require: Class[Postgresql::Server::Install]
+  '/etc/pgpool-II-96/follow_master.sh':
+    ensure: file
+    source: 'puppet:///modules/core/pgpool/follow_master.sh'
+    mode: '755'
+  '/etc/pgpool-II-96/failover.sh':
+    ensure: file
+    source: 'puppet:///modules/core/pgpool/failover.sh'
+    mode: '755'
+  'pgpool_remote_start':
+    ensure: file
+    path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/pgpool_remote_start"
+    source: 'puppet:///modules/core/pgpool/pgpool_remote_start'
+  'pgpool_recovery_1st_stage':
+    ensure: file
+    path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/recovery_1st_stage"
+    source: 'puppet:///modules/core/pgpool/recovery_1st_stage'
 
-core::profile::postgresql::server::dbversion:              '9.6'
 core::profile::postgresql::server::manage_repo:            true
 core::profile::postgresql::server::use_seperate_partition: true
+core::profile::postgresql::server::dbversion:              *postgresql_version
 core::profile::postgresql::server::datadir:                *postgresql_datadir
 core::profile::postgresql::server::instancename:           *postgresql_instancename
-core::profile::postgresql::server::masternode:             *postgresql_masternode
-core::profile::postgresql::server::slaves:                 1
-core::profile::postgresql::server::synchronous_slave_names:
-  - 's2'
+
+postgresql::server::pg_hba_conf_defaults: false
 core::profile::postgresql::server::pg_hba_rules:
-  'replication':
+  'local_replication':
+    type: 'local'
+    database: 'all'
+    user: 'replication'
+    auth_method: 'md5'
+  'local_pgpool':
+    type: 'local'
+    database: 'all'
+    user: 'pgpool'
+    auth_method: 'md5'
+  'local_all':
+    type: 'local'
+    database: 'all'
+    user: 'all'
+    auth_method: 'peer'
+  'replication_localhost':
+    type: 'host'
+    database: 'replication'
+    user : 'replication'
+    address: '127.0.0.1/32'
+    auth_method: 'md5'
+  'replication_subnet':
     type: 'host'
     database: 'replication'
     user : 'replication'
     address: '10.10.10.0/24'
     auth_method: 'md5'
+  'pgpool_localhost':
+    type: 'host'
+    database: 'all'
+    user : 'pgpool'
+    address: '127.0.0.1/32'
+    auth_method: 'md5'
+  'pgpool_subnet':
+    type: 'host'
+    database: 'all'
+    user : 'pgpool'
+    address: '10.10.10.0/24'
+    auth_method: 'md5'
+  'all_localhost':
+    type: 'host'
+    database: 'all'
+    user : 'all'
+    address: '127.0.0.1/32'
+    auth_method: 'md5'
+  'all_subnet':
+    type: 'host'
+    database: 'all'
+    user : 'all'
+    address: '10.10.10.0/24'
+    auth_method: 'md5'
+
+  'allow_local_pgadmin':
+    description: 'Allow connection through Vagrantbox gateway for pgadmin'
+    type: 'host'
+    database: 'postgres'
+    user: 'fabian'
+    address: '10.10.10.1/32'
+    auth_method: 'trust'
 
 postgresql::server::log_line_prefix: '%t %u@%d %p '
 postgresql::server::timezone:        'Europe/Amsterdam'
@@ -63,8 +156,122 @@ core::profile::postgresql::server::config_entries:
   'hot_standby':
     value: 'on'
 
-postgresql::server::roles:
+#pgpool
+core::profile::postgresql::server::use_pgpool: true
+pgpool::postgresql_version: *postgresql_version
+core::profile::postgresql::pgpool::pool_hbas:
+  'local_replication':
+    type: 'local'
+    database: 'all'
+    user: 'replication'
+    method: 'md5'
+  'local_pgpool':
+    type: 'local'
+    database: 'all'
+    user: 'pgpool'
+    method: 'md5'
+  'local_all':
+    type: 'local'
+    database: 'all'
+    user: 'all'
+    method: 'trust'
+  'host_replication_localhost':
+    type: 'host'
+    database: 'replication'
+    user: 'replication'
+    address: '127.0.0.1/32'
+    method: 'md5'
+  'host_replication_subnet':
+    type: 'host'
+    database: 'replication'
+    user: 'replication'
+    address: '10.10.10.0/24'
+    method: 'md5'
+  'host_pgpool_localhost':
+    type: 'host'
+    database: 'all'
+    user: 'pgpool'
+    address: '127.0.0.1/32'
+    method: 'md5'
+  'host_pgpool_subnet':
+    type: 'host'
+    database: 'all'
+    user: 'pgpool'
+    address: '10.10.10.0/24'
+    method: 'md5'
+  'host_all_localhost':
+    type: 'host'
+    database: 'all'
+    user: 'all'
+    address: '127.0.0.1/32'
+    method: 'md5'
+  'host_all_subnet':
+    type: 'host'
+    database: 'all'
+    user: 'all'
+    address: '10.10.10.0/24'
+    method: 'md5'
+
+core::profile::postgresql::pgpool::pcps:
+  'pgpool':
+    password_hash: 'ba777e4c2f15c11ea8ac3be7e0440aa0'
+  'postgres':
+    password_hash: 'e8a48653851e28c69d0506508fb27fc5'
   'replication':
-    replication: true
-    password_hash: 'replication'
-    require: Class[Postgresql::Server::Service]
+    password_hash: 'f29fabe637a472bf5222b12a0bc5df77'
+core::profile::postgresql::pgpool::pool_passwds:
+  'pgpool':
+    password_hash: 'md5f24aeb1c3b7d05d7eaf2cd648c307092'
+  'postgres':
+    password_hash: 'md53175bce1d3201d16594cebf9d7eb3f9d'
+  'replication':
+    password_hash: 'md5fea8040a27d261e5ce47cacd41b48a90'
+
+pgpool::config::connection::listen_addresses: '*'
+
+pgpool::config::service::pid_file_name: '/var/run/pgpool-II-96/pgpool.pid'
+pgpool::config::service::logdir: '/var/log/pgpool-II-96'
+
+pgpool::config::watchdog::use_watchdog: 'on'
+pgpool::config::watchdog::delegate_IP: '10.10.10.200'
+pgpool::config::watchdog::if_up_cmd: '../bin/sudo /usr/sbin/ip addr add $_IP_$/24 dev eth1 label eth1:0'
+pgpool::config::watchdog::if_down_cmd: '../bin/sudo /usr/sbin/ip addr del $_IP_$/24 dev eth1'
+pgpool::config::watchdog::arping_cmd: 'arping -U -w 1 -I eth1 $_IP_$'
+pgpool::config::watchdog::wd_lifecheck_user: 'postgres'
+pgpool::config::watchdog::wd_lifecheck_password: 'postgres'
+
+pgpool::config::loadbalance::load_balance_mode: 'on'
+pgpool::config::masterslave::master_slave_mode: 'on'
+pgpool::config::masterslave::sr_check_period: 10
+pgpool::config::masterslave::sr_check_user: 'pgpool'
+pgpool::config::masterslave::sr_check_password: 'pgpool'
+pgpool::config::masterslave::delay_threshold: 10000000
+pgpool::config::masterslave::follow_master_command: '/etc/pgpool-II-96/follow_master.sh %d %h %p %D %m %M %H %P %r %R'
+
+pgpool::config::healthcheck::health_check_timeout: 30
+pgpool::config::healthcheck::health_check_user: 'pgpool'
+pgpool::config::healthcheck::health_check_password: 'pgpool'
+pgpool::config::healthcheck::health_check_max_retries: 3
+
+pgpool::config::failover::failover_command: '/etc/pgpool-II-96/failover.sh %d %h %p %D %m %H %M %P %r %R'
+pgpool::config::failover::recovery_user: 'postgres'
+pgpool::config::failover::recovery_password: 'postgres'
+pgpool::config::failover::recovery_1st_stage_command: 'recovery_1st_stage'
+pgpool::config::failover::search_primary_node_timeout: 300
+
+core::profile::postgresql::pgpool::backends:
+  'pgdb01':
+    id: 0
+    hostname: 'pgdb01.mdt-cmc.local'
+    port: 5432
+    data_directory: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata"
+  'pgdb02':
+    id: 1
+    hostname: 'pgdb02.mdt-cmc.local'
+    port: 5432
+    data_directory: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata"
+  'pgdb03':
+    id: 2
+    hostname: 'pgdb03.mdt-cmc.local'
+    port: 5432
+    data_directory: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata"

@@ -11,12 +11,15 @@ puppet/modules/lvm
 puppet/modules/selinux
 puppet/modules/stdlib
 puppet/modules/systemd
+puppet/modules/fw
 
 #Postgresql
 puppet/modules/postgresql
 puppet/modules/apt
 puppet/modules/concat
 puppet/modules/translate
+puppet/modules/pgpool
+augeasproviders_postgresql
 
 #CORE
 puppet/modules/core

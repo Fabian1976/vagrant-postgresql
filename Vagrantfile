@@ -85,4 +85,29 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       trigger.warn = "Don't forget to clear the certificate and deactivate the puppetdb node on the puppetmaster"
     end
   end
+  config.vm.define 'pgdb03', autostart: false do |pgdb03|
+    pgdb03.vm.box = 'cmc/cis-centos76'
+    pgdb03.vm.hostname = 'pgdb03.mdt-cmc.local'
+    pgdb03.vm.network 'private_network', bridge: 'vboxnet5', ip: '10.10.10.210'
+
+    pgdb03.vm.provider 'virtualbox' do |vb|
+      vb.customize ['modifyvm', :id, '--cableconnected1', 'on']
+      vb.memory = 2048
+      vb.customize ['modifyvm', :id, '--vram', '20']
+      file_to_disk = './tmp/pgdb03.vdi'
+      unless File.exist?(file_to_disk)
+        vb.customize ['createhd', '--filename', file_to_disk, '--size', (32 * 1024)]
+      end
+      vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+      vb.gui = true
+      vb.name = 'pgdb03'
+    end
+    #run provisioning
+    pgdb03.vm.provision :shell,
+      path: 'bootstrap_postgresql_slave.sh',
+      upload_path: '/home/vagrant/bootstrap.sh'
+    pgdb03.trigger.before :destroy do |trigger|
+      trigger.warn = "Don't forget to clear the certificate and deactivate the puppetdb node on the puppetmaster"
+    end
+  end
 end

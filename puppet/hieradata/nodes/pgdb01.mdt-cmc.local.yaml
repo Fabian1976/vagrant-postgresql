@@ -1,4 +1,36 @@
 ---
 cluster: postgresql
 
-postgresql::server::manage_recovery_conf: false
+postgresql::postgres_password: 'postgres'
+postgresql::server::roles:
+  'replication':
+    replication: true
+    password_hash: 'replication'
+    require: Class[Postgresql::Server::Service]
+  'fabian':
+    password_hash: 'fabian'
+    require: Class[Postgresql::Server::Service]
+
+pgpool::config::watchdog::wd_hostname: 'pgdb01.mdt-cmc.local'
+
+core::profile::postgresql::pgpool::heartbeats:
+  'pgdb02':
+    id: 0
+    destination: 'pgdb02.mdt-cmc.local'
+    port: 9694
+  'pgdb03':
+    id: 1
+    destination: 'pgdb03.mdt-cmc.local'
+    port: 9694
+
+core::profile::postgresql::pgpool::wdothers:
+  'pgdb02':
+    id: 0
+    hostname: 'pgdb02.mdt-cmc.local'
+    port: 9999
+    wd_port: 9000
+  'pgdb03':
+    id: 1
+    hostname: 'pgdb03.mdt-cmc.local'
+    port: 9999
+    wd_port: 9000
