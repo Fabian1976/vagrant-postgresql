@@ -17,9 +17,12 @@ postgresql::server::roles:
   'fabian':
     password_hash: 'fabian'
     require: Class[Postgresql::Server::Service]
-#core::profile::postgresql::server::extensions:
-#  'pgpool_recovery':
-#    database: 'template1'
+core::profile::postgresql::server::databases:
+  'template1':
+    istemplate: true
+core::profile::postgresql::server::extensions:
+  'pgpool_recovery':
+    database: 'template1'
 
 pgpool::config::watchdog::wd_hostname: 'pgdb01.mdt-cmc.local'
 
