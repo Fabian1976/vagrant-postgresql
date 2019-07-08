@@ -158,6 +158,8 @@ core::profile::postgresql::server::config_entries:
 
 #pgpool
 core::profile::postgresql::server::use_pgpool: true
+pgpool::package_name: 'pgpool-II-96-extensions' #< moet met core in additional packages komen
+pgpool::service_name: 'pgpool-II-96' #< is niet meer nodig als extensions als additional packages geïnstalleerd wordt
 pgpool::postgresql_version: *postgresql_version
 core::profile::postgresql::pgpool::pool_hbas:
   'local_replication':
