@@ -11,6 +11,14 @@ rm -f /etc/localtime
 ln -s /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 systemctl restart rsyslog
 
+#delete host as localhost. We're using hostmanager
+sed -i '1d' /etc/hosts
+
+#Disable ipv6 and remove ::1 localhost (gives issues with puppet if it is not removed)
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sed -i '/::1/d' /etc/hosts
+
 #Firewall prereq
 yum -y remove firewalld
 yum -y install iptables-services
