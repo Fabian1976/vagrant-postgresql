@@ -1,7 +1,8 @@
 ---
 cluster: postgresql
 
-postgresql::postgres_password: 'postgres'
+postgresql::server::postgres_password: 'postgres'
+
 postgresql::server::roles:
   'replication':
     replication: true

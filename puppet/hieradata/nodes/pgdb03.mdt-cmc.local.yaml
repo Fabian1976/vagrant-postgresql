@@ -5,7 +5,7 @@ postgresql::server::service_manage: false
 
 pgpool::config::watchdog::wd_hostname: 'pgdb03.mdt-cmc.local'
 
-core::profile::postgresql::server::pgpool_heartbeats:
+core::profile::postgresql::pgpool::heartbeats:
   'pgdb01':
     id: 0
     destination: 'pgdb01.mdt-cmc.local'
@@ -15,7 +15,7 @@ core::profile::postgresql::server::pgpool_heartbeats:
     destination: 'pgdb02.mdt-cmc.local'
     port: 9694
 
-core::profile::postgresql::server::pgpool_wdothers:
+core::profile::postgresql::pgpool::wdothers:
   'pgdb01':
     id: 0
     hostname: 'pgdb01.mdt-cmc.local'

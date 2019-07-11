@@ -38,6 +38,7 @@ report          = true
 ignoreschedules = true
 daemon          = false
 environment     = production
+runinterval     = 5m
 EOF'
 
 #Firewall prereq
@@ -49,3 +50,4 @@ yum -y install iptables-services
 #/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
 #manifest on puppetmaster
 puppet agent -t; true
+systemctl start puppet

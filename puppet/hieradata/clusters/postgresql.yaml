@@ -4,10 +4,62 @@ roles:
   - core::profile::copy
   - fw
 
-postgresql_version:      &postgresql_version      '9.6'
-postgresql_datadir:      &postgresql_datadir      '/database'
-postgresql_instancename: &postgresql_instancename 'mdt_cmc'
-
+postgresql_version:         &postgresql_version         '9.6'
+postgresql_datadir:         &postgresql_datadir         '/database'
+postgresql_instancename:    &postgresql_instancename    'mdt_cmc'
+postgresql_public_ssh_key:  &postgresql_public_ssh_key  'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCy7Hw7y06q4my0solE3uVAKntFJaJ/vjGbWSwgRFTlp4ZhgpQk3HICNDXcsY1Yz3/2qGGCmBAI5Uvt7LY6LL1yZwNR4mnzBMeg4CoHkZun3tp20Bn+EGwP3d6q3MupXpotT0aCY+TwZedhnentxCbRbz883Bgfw/vOGUyTE4F4Gup+ZJvHIDHJ/THfBsg5CSv0pjKVRA/AgBSWiHnThaHayPrtil34dtxrBrQvImzwB1Pu/PCov+G/qqTH1z89vBBk6VYWv+VXEn2N8HWPLFV2ndfr6yHIMIucEKRtPFBjufmM82a91zjq8jeLpQ5/LjbxkOJMpqTPz0pljhgc2g4EPdOMljc2CQtnjmAQspJngXbUzZNSyUXC+n0vEMPlEdn3rcDOm/fcRuPTznEnmvFFxgTNBTa08unuxc607RZLx0Ny28BRDjKs7THQlPwRi/H49i1hZzgmsfwdobyckV33vafMadZ38/4J9Kq9KrP0BdRD/lWY+21DWjri9cRS6UKYMR3rAz/EO0nuDnUiokO4gOmpa4sNsjMhOoa2xxJaKkZ1HSK2bHiPRe7SlWpsJTds5T9x/kLF42uVic5sl/FuUSnhrZ+N22fLxR454yDxoWRvm55ds7Cu1LopfvntT+sfL8R+WDSBcW6AdO+0UieXmmBKkPDoDWFB2iqlcdOoyw== postgres'
+postgresql_private_ssh_key: &postgresql_private_ssh_key |
+ -----BEGIN RSA PRIVATE KEY-----
+ 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
+ -----END RSA PRIVATE KEY-----
 core::profile::copy::files:
   'archive_location':
     ensure: 'directory'
@@ -59,16 +111,26 @@ core::profile::copy::files:
     ensure: file
     path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/pgpool_remote_start"
     source: 'puppet:///modules/core/pgpool/pgpool_remote_start'
+    owner: 'postgres'
+    group: 'postgres'
+    mode: '0774'
+    require: Class[Postgresql::Server::Install]
   'pgpool_recovery_1st_stage':
     ensure: file
     path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/recovery_1st_stage"
     source: 'puppet:///modules/core/pgpool/recovery_1st_stage'
+    owner: 'postgres'
+    group: 'postgres'
+    mode: '0774'
+    require: Class[Postgresql::Server::Install]
 
 core::profile::postgresql::server::manage_repo:            true
 core::profile::postgresql::server::use_seperate_partition: true
 core::profile::postgresql::server::dbversion:              *postgresql_version
 core::profile::postgresql::server::datadir:                *postgresql_datadir
 core::profile::postgresql::server::instancename:           *postgresql_instancename
+core::profile::postgresql::server::public_ssh_key:         *postgresql_public_ssh_key
+core::profile::postgresql::server::private_ssh_key:        *postgresql_private_ssh_key
 
 postgresql::server::pg_hba_conf_defaults: false
 core::profile::postgresql::server::pg_hba_rules:
@@ -236,8 +298,9 @@ pgpool::config::service::logdir: '/var/log/pgpool-II-96'
 
 pgpool::config::watchdog::use_watchdog: 'on'
 pgpool::config::watchdog::delegate_IP: '10.10.10.200'
-pgpool::config::watchdog::if_up_cmd: '../bin/sudo /usr/sbin/ip addr add $_IP_$/24 dev eth1 label eth1:0'
-pgpool::config::watchdog::if_down_cmd: '../bin/sudo /usr/sbin/ip addr del $_IP_$/24 dev eth1'
+pgpool::config::watchdog::if_cmd_path: '/bin'
+pgpool::config::watchdog::if_up_cmd: 'sudo /usr/sbin/ip addr add $_IP_$/24 dev eth1 label eth1:0'
+pgpool::config::watchdog::if_down_cmd: 'sudo /usr/sbin/ip addr del $_IP_$/24 dev eth1'
 pgpool::config::watchdog::arping_cmd: 'arping -U -w 1 -I eth1 $_IP_$'
 pgpool::config::watchdog::wd_lifecheck_user: 'postgres'
 pgpool::config::watchdog::wd_lifecheck_password: 'postgres'

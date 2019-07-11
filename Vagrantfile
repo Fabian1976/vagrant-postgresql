@@ -60,7 +60,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       trigger.warn = "Don't forget to clear the certificate and deactivate the puppetdb node on the puppetmaster"
     end
   end
-  config.vm.define 'pgdb02', autostart: false do |pgdb02|
+  config.vm.define 'pgdb02', autostart: true do |pgdb02|
     pgdb02.vm.box = 'cmc/cis-centos76'
     pgdb02.vm.hostname = 'pgdb02.mdt-cmc.local'
     pgdb02.vm.network 'private_network', bridge: 'vboxnet5', ip: '10.10.10.209'
@@ -85,7 +85,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       trigger.warn = "Don't forget to clear the certificate and deactivate the puppetdb node on the puppetmaster"
     end
   end
-  config.vm.define 'pgdb03', autostart: false do |pgdb03|
+  config.vm.define 'pgdb03', autostart: true do |pgdb03|
     pgdb03.vm.box = 'cmc/cis-centos76'
     pgdb03.vm.hostname = 'pgdb03.mdt-cmc.local'
     pgdb03.vm.network 'private_network', bridge: 'vboxnet5', ip: '10.10.10.210'

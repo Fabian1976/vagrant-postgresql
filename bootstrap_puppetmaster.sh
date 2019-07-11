@@ -195,3 +195,4 @@ environment     = production
 EOF'
 
 puppet agent -t; true
+systemctl start puppet
