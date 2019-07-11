@@ -323,6 +323,7 @@ pgpool::config::failover::recovery_user: 'postgres'
 pgpool::config::failover::recovery_password: 'postgres'
 pgpool::config::failover::recovery_1st_stage_command: 'recovery_1st_stage'
 pgpool::config::failover::search_primary_node_timeout: 300
+pgpool::config::failover::detach_false_primary: 'on'
 
 core::profile::postgresql::pgpool::backends:
   'pgdb01':
