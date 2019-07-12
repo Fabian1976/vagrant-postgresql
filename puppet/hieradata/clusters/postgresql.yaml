@@ -99,26 +99,17 @@ core::profile::copy::files:
     group: 'root'
     mode: '0600'
     require: Class[Postgresql::Server::Install]
-  '/etc/pgpool-II-96/follow_master.sh':
-    ensure: file
-    source: 'puppet:///modules/core/pgpool/follow_master.sh'
-    mode: '755'
   '/etc/pgpool-II-96/failover.sh':
     ensure: file
     source: 'puppet:///modules/core/pgpool/failover.sh'
-    mode: '755'
+    owner: 'postgres'
+    group: 'postgres'
+    mode: '0774'
+    require: Class[Pgpool::Config]
   'pgpool_remote_start':
     ensure: file
     path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/pgpool_remote_start"
     source: 'puppet:///modules/core/pgpool/pgpool_remote_start'
-    owner: 'postgres'
-    group: 'postgres'
-    mode: '0774'
-    require: Class[Postgresql::Server::Install]
-  'pgpool_recovery_1st_stage':
-    ensure: file
-    path: "%{hiera('postgresql_datadir')}/%{hiera('postgresql_instancename')}/pgdata/recovery_1st_stage"
-    source: 'puppet:///modules/core/pgpool/recovery_1st_stage'
     owner: 'postgres'
     group: 'postgres'
     mode: '0774'
